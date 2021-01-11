@@ -1,0 +1,87 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: manufacturerlmanufacturerlibft
+  namespace: manufacturerl-bes
+  annotations:
+    flux.weave.works/automated: "false"
+spec:
+  releaseName: manufacturerlmanufacturerlibft
+  chart:
+    git: git@github.com:lakshyakumar/blockchain-automation-framework.git
+    ref: test2
+    path: platforms/hyperledger-besu/charts/node_orion 
+  values:
+    replicaCount: 1
+
+    healthcheck:
+      readinessthreshold: 100
+      readinesscheckinterval: 5
+
+    staticnodes:
+      - "enode://ea8874cb5cab00d1be5cce4a0e6213edf9243c11ddc5331053c2bb04b5f5dffc7c189dff14b77b4d6f6a13059b7a58b3ef9b907e53799fe1cbd09dfe42226495@54.229.122.144:15050"
+      - "enode://302b4e1737d3d6c8d13e189ab9524ba359986f7b9e70a6a27af19fc9cb124c6c558f2c6a389e2893c499b6bd803cd2515ab5791a17f01177c9947d2c7bdbdb2d@54.229.122.144:15060"
+      - "enode://4d3c91b0b787a359f57a71d16a96f1d52a06786cbc962a142d745c19ec81957e49551ad531053da11bd580701a25674a315175dba566ced183304a194bc135fa@54.229.122.144:15070"
+      - "enode://a2057e1316438b62cfd0be2b3dc92a21afe030fe34c82e84bf038280fcf352eab7071307c7d783175eed429a2080c164a485dc23fd2558ce418b32d28f292d49@54.229.122.144:15080"
+      - "enode://b0cedbd3617b963d89c67d97b49ebd92840554c4cd5210045c835fd034b61f0de8172800b102b650569a1388cd3af73a5c76bac943a3d6a3c8e55036ef055429@54.229.122.144:15010"
+      - "enode://914fba94421679df6356bffe3109143540fd99ebf0ec104bba41daf984ebacaa2d2371a260932c2566e12a1384d6342650dc9c7acda8e385ed36138512518e43@54.229.122.144:15020"
+      - "enode://d192c58440a123a5080c6a010c7ec0ada39c013800399889c89efd00991b3890b41a0a21730a649185ed7f3b5b41720b26dd606ff2de9340801cd1d98bf255a8@54.229.122.144:15030"
+      - "enode://59861df28dbc90c18cd2f633cffde06e0ce5e6bf942c3f54917b89474aa289e32a7f955a96d8f6331971b10df1a1be35b40f753e71331a287672d77886a5ede4@54.229.122.144:15040"
+
+    metadata:
+      namespace: manufacturerl-bes
+      labels:
+
+    liveliness_check:
+      enabled: false
+
+    proxy:
+      provider: ambassador
+      external_url: manufacturerl.rc.dev2.aws.blockchaincloudpoc-develop.com
+      p2p: 15020
+      rpc: 15021
+      tmport: 15023
+
+    images:
+      node: hyperledger/besu:1.4.4
+      alpineutils: hyperledgerlabs/alpine-utils:1.0
+      orion: pegasyseng/orion:1.5.2
+
+    node:
+      name: manufacturerl
+      consensus: ibft
+      subject: O=Manufacturer,OU=Manufacturer,L=Zurich,C=CH
+      mountPath: /etc/genesis
+      servicetype: ClusterIP
+      imagePullSecret: regcred
+      ports:
+        p2p: 30303
+        rpc: 8545
+        ws: 8546
+
+    orion:
+      name: orion
+      tls: True
+      confdir: /etc/config
+      url: "https://manufacturerl.rc.dev2.aws.blockchaincloudpoc-develop.com"
+      nodelist: "\"https://carrierl.rc.dev2.aws.blockchaincloudpoc-develop.com:15013\",\"https://storel.rc.dev2.aws.blockchaincloudpoc-develop.com:15033\",\"https://warehousel.rc.dev2.aws.blockchaincloudpoc-develop.com:15043\""
+      trust: ca-or-tofu
+      ports:
+        nodeport: 8888
+        clientport: 8080
+
+    storage:
+      storageclassname: awsstorageclass
+      storagesize: 1Gi
+
+    vault:
+      address: http://vault.internal.dev2.aws.blockchaincloudpoc-develop.com:20001
+      secretprefix: secret/manufacturerl-bes/crypto/manufacturerl
+      serviceaccountname: vault-auth
+      keyname: data
+      oriondir: orion
+      tlsdir: tls
+      role: vault-role
+      authpath: besumanufacturerl
+
+    genesis: ewogICJjb25maWciOiB7CiAgICAiY2hhaW5JZCI6IDIwMTgsCiAgICAiY29uc3RhbnRpbm9wbGVmaXhibG9jayI6IDAsCiAgICAiY29udHJhY3RTaXplTGltaXQiOiAyMTQ3NDgzNjQ3LAogICAgImliZnQyIjogewogICAgICAiYmxvY2twZXJpb2RzZWNvbmRzIjogMiwKICAgICAgImVwb2NobGVuZ3RoIjogMzAwMDAsCiAgICAgICJyZXF1ZXN0dGltZW91dHNlY29uZHMiOiAxMAogICAgfQogIH0sCiAgIm5vbmNlIjogIjB4MCIsCiAgInRpbWVzdGFtcCI6ICIweDU4ZWU0MGJhIiwKICAiZ2FzTGltaXQiOiAiMHgxZmZmZmZmZmZmZmZmZiIsCiAgImRpZmZpY3VsdHkiOiAiMHgxIiwKICAiZXh0cmFEYXRhIjogIjB4Zjg3ZWEwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGY4NTQ5NGFkZTcwMTZjNGNhY2FkNzAxMDZmNjcxZmNmY2Q1MGM5ZWMxMmVjNTc5NDYwNzUyZDg2OTM3ZGU0NTdiOGQ0NDBmYjFlZTYyODA3NDJiZmNjODQ5NDE2OWQ2ZDJlNDU3ZGYzM2JiZGI1OTg0MTUzYjVlMzdiZjE5M2JmNTk5NDA4YzBmZmJjNTg2YTRiOWMwOTBmZTY0MDg5MzIxNjNlMzFjYjNkODg4MDg0MDAwMDAwMDBjMCIKfQ==
