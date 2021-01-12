@@ -1,0 +1,28 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: cl-net-ca-tools
+  namespace: cl-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: cl-net-ca-tools
+  chart:
+    git: git@github.com:lakshyakumar/blockchain-automation-framework.git
+    ref: test2
+    path: platforms/hyperledger-fabric/charts/catools
+  values:
+    metadata:
+      namespace: cl-net
+      name: ca-tools
+
+    replicaCount: 1
+
+    image:
+      repository: hyperledger/fabric-ca-tools
+      tag: 1.2.1
+      pullPolicy: IfNotPresent
+      
+    storage:
+      storageclassname: clsc
+      storagesize: 512Mi
