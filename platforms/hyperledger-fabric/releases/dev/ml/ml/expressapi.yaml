@@ -9,7 +9,7 @@ spec:
   chart:
     path: examples/supplychain-app/charts/expressapp
     git: "git@github.com:lakshyakumar/blockchain-automation-framework.git"
-    ref: "test220"
+    ref: "test2"
   releaseName: mlfabric-expressapi
   values:
     nodeName: ml-expressapi
