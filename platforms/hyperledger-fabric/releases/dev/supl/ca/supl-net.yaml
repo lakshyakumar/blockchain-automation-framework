@@ -1,0 +1,43 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: supl-net-ca
+  namespace: supl-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: supl-net-ca
+  chart:
+    git: git@github.com:lakshyakumar/blockchain-automation-framework.git
+    ref: test2
+    path: platforms/hyperledger-fabric/charts/ca    
+  values:
+    metadata:
+      namespace: supl-net
+      images:
+        alpineutils: adopblockchaincloud0502.azurecr.io/alpine-utils:1.0
+        ca: hyperledger/fabric-ca:1.4.8
+    server:
+      name: ca
+      tlsstatus: true
+      admin: supl-admin
+    storage:
+      storageclassname: suplsc
+      storagesize: 512Mi 
+    vault:
+      role: vault-role
+      address: http://vault.internal.dev2.aws.blockchaincloudpoc-develop.com:20001
+      authpath: supl-net-auth
+      secretcert: secret/crypto/ordererOrganizations/supl-net/ca?ca.supl-net-cert.pem
+      secretkey: secret/crypto/ordererOrganizations/supl-net/ca?supl-net-CA.key
+      secretadminpass: secret/credentials/supl-net/ca/supl?user
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+    service:
+      servicetype: ClusterIP
+      ports:
+        tcp:
+          port: 7054
+    proxy:
+      provider: haproxy
+      type: orderer
