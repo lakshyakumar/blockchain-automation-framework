@@ -213,7 +213,7 @@ spec:
           else
             echo "Installing Chaincode for ${NETWORK_VERSION}"
             if [ $PEER_NAME = "peer0" ];then
-              ## packaging chaincode
+              ## packaging chaincode for the firsst peer of organization
               echo "Packaging chaincode for the first peer"
               peer lifecycle chaincode package ${CHAINCODE_NAME}.tar.gz --path ${CC_SRC_PATH} --lang ${CC_RUNTIME_LANGUAGE} --label ${CHAINCODE_NAME}_${CHAINCODE_VERSION}
             else
