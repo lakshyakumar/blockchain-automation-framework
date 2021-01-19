@@ -1,0 +1,41 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: joinchannel-peer0-join-allchannel-ml-peer0
+  namespace: ml-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: joinchannel-peer0-join-allchannel-ml-peer0
+  chart:
+    git: git@github.com:lakshyakumar/blockchain-automation-framework.git
+    ref: test2
+    path: platforms/hyperledger-fabric/charts/join_channel
+  values:
+    metadata:
+      namespace: ml-net
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.0
+        alpineutils: adopblockchaincloud0502.azurecr.io/alpine-utils:1.0
+
+    peer:
+      name: peer0
+      address: peer0.ml-net.hf.dev2.aws.blockchaincloudpoc-develop.com:8443
+      localmspid: mlMSP
+      loglevel: debug
+      tlsstatus: true
+
+    vault:
+      role: vault-role
+      address: http://vault.internal.dev2.aws.blockchaincloudpoc-develop.com:20001
+      authpath: ml-net-auth
+      adminsecretprefix: secret/crypto/peerOrganizations/ml-net/users/admin
+      orderersecretprefix: secret/crypto/peerOrganizations/ml-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+
+    channel:
+      name: allchannel      
+    orderer:
+      address: orderer4.hf.dev2.aws.blockchaincloudpoc-develop.com:8443
+
