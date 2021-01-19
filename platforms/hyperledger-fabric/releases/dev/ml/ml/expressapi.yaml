@@ -1,0 +1,35 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: ml-expressapi
+  namespace: ml-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  chart:
+    path: examples/supplychain-app/charts/expressapp
+    git: "git@github.com:lakshyakumar/blockchain-automation-framework.git"
+    ref: "test220"
+  releaseName: mlfabric-expressapi
+  values:
+    nodeName: ml-expressapi
+    metadata:
+      namespace: ml-net
+    replicaCount: 1
+    expressapp:
+      serviceType: ClusterIP
+      image: index.docker.io/hyperledgerlabs/supplychain_fabric:express_app_latest
+      pullPolicy: Always
+      pullSecrets: regcred
+      nodePorts:
+        port: 3000
+        targetPort: 3000
+        name: tcp
+      env:
+        apiUrl: http://ml-restserver.ml-net:20001/api/v1
+    proxy:
+      provider: haproxy
+      name: ml
+      type: fabric
+      external_url_suffix: hf.dev2.aws.blockchaincloudpoc-develop.com
+      peer_name: peer0
