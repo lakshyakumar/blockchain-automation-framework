@@ -1,0 +1,51 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: anchorpeer-allchannel-sl
+  namespace: sl-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: anchorpeer-allchannel-sl
+  chart:
+    git: git@github.com:lakshyakumar/blockchain-automation-framework.git
+    ref: test2
+    path: platforms/hyperledger-fabric/charts/anchorpeer
+  values:
+    metadata:
+      namespace: sl-net
+      images:
+        fabrictools: hyperledger/fabric-tools:2.2.0
+        alpineutils: adopblockchaincloud0502.azurecr.io/alpine-utils:1.0
+
+    peer:
+      name: peer0
+      address: peer0.sl-net.hf.dev2.aws.blockchaincloudpoc-develop.com:8443
+      localmspid: slMSP
+      loglevel: debug
+      tlsstatus: true
+
+    vault:
+      role: vault-role
+      address: http://vault.internal.dev2.aws.blockchaincloudpoc-develop.com:20001
+      authpath: sl-net-auth
+      adminsecretprefix: secret/crypto/peerOrganizations/sl-net/users/admin
+      orderersecretprefix: secret/crypto/peerOrganizations/sl-net/orderer
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+
+    channel:
+      name: allchannel      
+    orderer:
+      address: orderer4.hf.dev2.aws.blockchaincloudpoc-develop.com:8443
+    anchorstx: |-
+      CtMDChgKFggCGgYIreKagAYiCmFsbGNoYW5uZWwStgMKswMKCmFsbGNoYW5uZWwSXhJcCgtBcHBs
+      aWNhdGlvbhJNCAESSQoFc2xNU1ASQBoHCgNNU1ASACILCgdSZWFkZXJzEgAiCwoHV3JpdGVycxIA
+      IgoKBkFkbWlucxIAIg8KC0VuZG9yc2VtZW50EgAaxAISwQIKC0FwcGxpY2F0aW9uErECCAESrAIK
+      BXNsTVNQEqICCAEa1QEKC0FuY2hvclBlZXJzEsUBEroBCjwKN3BlZXIwLnNsLW5ldC5oZi5kZXYy
+      LmF3cy5ibG9ja2NoYWluY2xvdWRwb2MtZGV2ZWxvcC5jb20Q+0EKPAo3cGVlcjEuc2wtbmV0Lmhm
+      LmRldjIuYXdzLmJsb2NrY2hhaW5jbG91ZHBvYy1kZXZlbG9wLmNvbRD7QQo8CjdwZWVyMi5zbC1u
+      ZXQuaGYuZGV2Mi5hd3MuYmxvY2tjaGFpbmNsb3VkcG9jLWRldmVsb3AuY29tEPtBGgZBZG1pbnMa
+      BwoDTVNQEgAiCwoHUmVhZGVycxIAIgsKB1dyaXRlcnMSACIKCgZBZG1pbnMSACIPCgtFbmRvcnNl
+      bWVudBIAKgZBZG1pbnM=
+
