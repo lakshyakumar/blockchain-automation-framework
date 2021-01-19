@@ -1,0 +1,63 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: wl-peer0
+  namespace: wl-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: wl-peer0
+  chart:
+    git: git@github.com:lakshyakumar/blockchain-automation-framework.git
+    ref: test2
+    path: platforms/hyperledger-fabric/charts/peernode    
+  values:
+    metadata:
+      namespace: wl-net
+      images:
+        couchdb: couchdb:3.1
+        peer: hyperledger/fabric-peer:2.2.0
+        alpineutils: adopblockchaincloud0502.azurecr.io/alpine-utils:1.0
+        
+    peer:
+      name: peer0
+      gossippeeraddress: peer0.wl-net:7051
+      gossipexternalendpoint: peer0.wl-net.hf.dev2.aws.blockchaincloudpoc-develop.com:8443
+      localmspid: wlMSP
+      loglevel: info
+      tlsstatus: true
+      builder: hyperledger/fabric-ccenv:2.2.0
+      couchdb:
+        username: wl-user
+
+    storage:
+      peer:
+        storageclassname: wlsc
+        storagesize: 512Mi
+      couchdb:
+        storageclassname: wlsc
+        storagesize: 1Gi
+
+    vault:
+      role: vault-role
+      address: http://vault.internal.dev2.aws.blockchaincloudpoc-develop.com:20001
+      authpath: wl-net-auth
+      secretprefix: secret/crypto/peerOrganizations/wl-net/peers/peer0.wl-net
+      secretambassador: secret/crypto/peerOrganizations/wl-net/ambassador
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      secretcouchdbpass: secret/credentials/wl-net/couchdb/wl?user
+
+    service:
+      servicetype: ClusterIP
+      ports:
+        grpc:
+          clusteripport: 7051
+        events:
+          clusteripport: 7053
+        couchdb:
+          clusteripport: 5984
+          
+    proxy:
+      provider: haproxy
+      external_url_suffix: hf.dev2.aws.blockchaincloudpoc-develop.com
