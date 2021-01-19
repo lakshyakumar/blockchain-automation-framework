@@ -1,0 +1,35 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: sl-frontend
+  namespace: sl-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  chart:
+    path: examples/supplychain-app/charts/frontend
+    git: "git@github.com:lakshyakumar/blockchain-automation-framework.git"
+    ref: "test2"
+  releaseName: slfabric-frontend
+  values:
+    nodeName: sl-frontend
+    metadata:
+      namespace: sl-net
+    replicaCount: 1
+    frontend:
+      serviceType: ClusterIP
+      nodePorts:
+        port: 8080
+        targetPort: 80
+      image: index.docker.io/hyperledgerlabs/supplychain_frontend:latest
+      pullPolicy: Always
+      pullSecrets: regcred
+      env:
+        webserver: https://slapi.hf.dev2.aws.blockchaincloudpoc-develop.com
+    deployment:
+      annotations: {}
+    proxy:
+      provider: haproxy
+      peer_name: sl
+      external_url_suffix: hf.dev2.aws.blockchaincloudpoc-develop.com
+      ambassador_secret: peer2-sl-net-ambassador-certs
