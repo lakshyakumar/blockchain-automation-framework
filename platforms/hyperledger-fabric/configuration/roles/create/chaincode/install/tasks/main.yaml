@@ -22,8 +22,7 @@
   loop_control:
     loop_var: peer
   when: 
-    - peer.chaincode is defined 
-    - '1.4' in network.version
+    - peer.chaincode is defined and '1.4' in network.version
 
 # Create value file for chaincode installation for first pod in fabric version 2.2.x
 - name: "Create value file for chaincode installation for first pod in fabric version 2.2.x"
@@ -43,8 +42,7 @@
   loop_control:
     loop_var: peer
   when: 
-    - peer.chaincode is defined 
-    - '2.' in network.version
+    - peer.chaincode is defined and '2.' in network.version
     - peer.name == 'peer0'
 
 # Check or Wait if install-chaincode is already run
@@ -60,7 +58,7 @@
   loop_control:
     loop_var: peer
   when: 
-    - peer.chaincode is defined
+    - peer.chaincode is defined and '2.' in network.version
     - peer.name == 'peer0'
 
 # Create value file for chaincode installation for fabric version 2.2.x
@@ -81,6 +79,5 @@
   loop_control:
     loop_var: peer
   when: 
-    - peer.chaincode is defined 
-    - '2.' in network.version
+    - peer.chaincode is defined and '2.' in network.version
     - peer.name != 'peer0'
