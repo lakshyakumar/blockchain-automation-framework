@@ -225,6 +225,7 @@ spec:
               peer lifecycle chaincode getinstalledpackage --package-id ${PACKAGE_ID}
               export CORE_PEER_ADDRESS=${PEER_ADDRESS}
               export CHAINCODE_NAME=${PACKAGE_ID}
+              echo "installing ${CHAINCODE_NAME} on ${CORE_PEER_ADDRESS}"
             fi
             ## Installing Chaincode
             peer lifecycle chaincode install ${CHAINCODE_NAME}.tar.gz
