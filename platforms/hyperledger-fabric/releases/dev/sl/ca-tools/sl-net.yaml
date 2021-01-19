@@ -1,0 +1,28 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: sl-net-ca-tools
+  namespace: sl-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: sl-net-ca-tools
+  chart:
+    git: git@github.com:lakshyakumar/blockchain-automation-framework.git
+    ref: test2
+    path: platforms/hyperledger-fabric/charts/catools
+  values:
+    metadata:
+      namespace: sl-net
+      name: ca-tools
+
+    replicaCount: 1
+
+    image:
+      repository: hyperledger/fabric-ca-tools
+      tag: 1.2.1
+      pullPolicy: IfNotPresent
+      
+    storage:
+      storageclassname: slsc
+      storagesize: 512Mi
