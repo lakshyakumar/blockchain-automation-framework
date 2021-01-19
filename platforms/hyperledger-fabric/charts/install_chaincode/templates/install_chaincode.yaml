@@ -224,6 +224,7 @@ spec:
               echo "Package Id Extracted ${PACKAGE_ID}"
               peer lifecycle chaincode getinstalledpackage --package-id ${PACKAGE_ID}
               export CORE_PEER_ADDRESS=${PEER_ADDRESS}
+              ls
             fi
             tail -f /dev/null
             # ## Installing Chaincode
