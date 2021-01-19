@@ -1,0 +1,63 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: sl-peer0
+  namespace: sl-net
+  annotations:
+    fluxcd.io/automated: "false"
+spec:
+  releaseName: sl-peer0
+  chart:
+    git: git@github.com:lakshyakumar/blockchain-automation-framework.git
+    ref: test2
+    path: platforms/hyperledger-fabric/charts/peernode    
+  values:
+    metadata:
+      namespace: sl-net
+      images:
+        couchdb: couchdb:3.1
+        peer: hyperledger/fabric-peer:2.2.0
+        alpineutils: adopblockchaincloud0502.azurecr.io/alpine-utils:1.0
+        
+    peer:
+      name: peer0
+      gossippeeraddress: peer1.sl-net:7051
+      gossipexternalendpoint: peer0.sl-net.hf.dev2.aws.blockchaincloudpoc-develop.com:8443
+      localmspid: slMSP
+      loglevel: info
+      tlsstatus: true
+      builder: hyperledger/fabric-ccenv:2.2.0
+      couchdb:
+        username: sl-user
+
+    storage:
+      peer:
+        storageclassname: slsc
+        storagesize: 512Mi
+      couchdb:
+        storageclassname: slsc
+        storagesize: 1Gi
+
+    vault:
+      role: vault-role
+      address: http://vault.internal.dev2.aws.blockchaincloudpoc-develop.com:20001
+      authpath: sl-net-auth
+      secretprefix: secret/crypto/peerOrganizations/sl-net/peers/peer0.sl-net
+      secretambassador: secret/crypto/peerOrganizations/sl-net/ambassador
+      serviceaccountname: vault-auth
+      imagesecretname: regcred
+      secretcouchdbpass: secret/credentials/sl-net/couchdb/sl?user
+
+    service:
+      servicetype: ClusterIP
+      ports:
+        grpc:
+          clusteripport: 7051
+        events:
+          clusteripport: 7053
+        couchdb:
+          clusteripport: 5984
+          
+    proxy:
+      provider: haproxy
+      external_url_suffix: hf.dev2.aws.blockchaincloudpoc-develop.com
