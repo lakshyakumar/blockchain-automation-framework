@@ -1,0 +1,87 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: storelstorelibft
+  namespace: storel-bes
+  annotations:
+    flux.weave.works/automated: "false"
+spec:
+  releaseName: storelstorelibft
+  chart:
+    git: git@github.com:lakshyakumar/blockchain-automation-framework.git
+    ref: test2
+    path: platforms/hyperledger-besu/charts/node_orion 
+  values:
+    replicaCount: 1
+
+    healthcheck:
+      readinessthreshold: 100
+      readinesscheckinterval: 5
+
+    staticnodes:
+      - "enode://63f0553472d5e97213e3cedd528a5e819da05a94488de607e650e481d79ee16b47075bebda6d66aa9e8c9f48fb7ce5fe7ad371d8d35d8582dda9d8d7c41ecc6e@52.213.76.48:15050"
+      - "enode://590073d4a03d3562657aa1c0848c9a580f8c8fd428473747f27782edb5cfc59ef627cfe85f94bdbecdb2b81fd038c73b6e3632a5b049ddf750da2397ff73496c@52.213.76.48:15060"
+      - "enode://ecc591c8b179aadceecd71933b676e0c665a5f91bf8381d687f2aec63b653681ed40e53075c507f594d11e3ae51db52b1a2cc1d5e2fd3a1210d5a652d640df91@52.213.76.48:15070"
+      - "enode://13ac48052a4fa140658f4ae4e0574a706b1719b846175ccebb2b2767d13d2fc37cd6bc92d30b5c3848d1589a15e4ba155361c2b55fba9dd0c65df9bee549d91d@52.213.76.48:15080"
+      - "enode://6c4fbf8db429ed6a7db84889fd81919f69ea6e8d6f84311f3ff47ed892c8c01d84cbe1da865ce2aeef73e1af63fe2a4c82490ab05d2124b5d23aea4d114a63ee@52.213.76.48:15010"
+      - "enode://5986db28b355933c5f82dc34106de135f07833d1e4014bb8eed36fb4c5e068555f5d189cc350bb127a026f89003f32e96cd05ed0183268dbc875457bd7d2b642@52.213.76.48:15020"
+      - "enode://7f9156c70c46490e6492285393586a5f8f303b51f36a4a92d00c7f5513873ed131118a33b84de6bd2eaefbb503dc7d80d0ccf51712ed2be92a7fda9f275f3302@52.213.76.48:15030"
+      - "enode://d2c92e3af2e667a17bb8b7fbf2535d8a716d3380d80bb1dab5d657a99356c19b122b6c1300cbe0e6b02882aa217de3850dbd481ee00781ecb28b0e02a5141fab@52.213.76.48:15040"
+
+    metadata:
+      namespace: storel-bes
+      labels:
+
+    liveliness_check:
+      enabled: false
+
+    proxy:
+      provider: ambassador
+      external_url: storel.rc.dev2.aws.blockchaincloudpoc-develop.com
+      p2p: 15030
+      rpc: 15031
+      tmport: 15033
+
+    images:
+      node: hyperledger/besu:1.4.4
+      alpineutils: hyperledgerlabs/alpine-utils:1.0
+      orion: pegasyseng/orion:1.5.2
+
+    node:
+      name: storel
+      consensus: ibft
+      subject: O=Store,OU=Store,L=New York,C=US
+      mountPath: /etc/genesis
+      servicetype: ClusterIP
+      imagePullSecret: regcred
+      ports:
+        p2p: 30303
+        rpc: 8545
+        ws: 8546
+
+    orion:
+      name: orion
+      tls: True
+      confdir: /etc/config
+      url: "https://storel.rc.dev2.aws.blockchaincloudpoc-develop.com"
+      nodelist: "\"https://carrierl.rc.dev2.aws.blockchaincloudpoc-develop.com:15013\",\"https://manufacturerl.rc.dev2.aws.blockchaincloudpoc-develop.com:15023\",\"https://warehousel.rc.dev2.aws.blockchaincloudpoc-develop.com:15043\""
+      trust: ca-or-tofu
+      ports:
+        nodeport: 8888
+        clientport: 8080
+
+    storage:
+      storageclassname: awsstorageclass
+      storagesize: 1Gi
+
+    vault:
+      address: http://vault.internal.dev2.aws.blockchaincloudpoc-develop.com:20001
+      secretprefix: secret/storel-bes/crypto/storel
+      serviceaccountname: vault-auth
+      keyname: data
+      oriondir: orion
+      tlsdir: tls
+      role: vault-role
+      authpath: besustorel
+
+    genesis: ewogICJjb25maWciOiB7CiAgICAiY2hhaW5JZCI6IDIwMTgsCiAgICAiY29uc3RhbnRpbm9wbGVmaXhibG9jayI6IDAsCiAgICAiY29udHJhY3RTaXplTGltaXQiOiAyMTQ3NDgzNjQ3LAogICAgImliZnQyIjogewogICAgICAiYmxvY2twZXJpb2RzZWNvbmRzIjogMiwKICAgICAgImVwb2NobGVuZ3RoIjogMzAwMDAsCiAgICAgICJyZXF1ZXN0dGltZW91dHNlY29uZHMiOiAxMAogICAgfQogIH0sCiAgIm5vbmNlIjogIjB4MCIsCiAgInRpbWVzdGFtcCI6ICIweDU4ZWU0MGJhIiwKICAiZ2FzTGltaXQiOiAiMHgxZmZmZmZmZmZmZmZmZiIsCiAgImRpZmZpY3VsdHkiOiAiMHgxIiwKICAiZXh0cmFEYXRhIjogIjB4Zjg3ZWEwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMGY4NTQ5NDVhNGI0YThmOTFjYmRmN2I0OTI0MGI0ZDZhNWVhNzMyNGRiODNkM2E5NDVjZTdlMDAyNjJjOWJlZjlkNzA0M2RkZmZiZTAxZGYwMWIzMDA0YWQ5NDEzYWNiNzJhZDAyZTliYmJlNWViYzEwM2RjNDMwZDQwZGRlYTBhZmU5NDRhMzAxN2JlNjBmNjI1N2E4Mjc5YzcyYzMzZjRkODZmYmU2NzQ5ZTQ4MDg0MDAwMDAwMDBjMCIKfQ==
